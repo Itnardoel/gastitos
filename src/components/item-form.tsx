@@ -95,14 +95,18 @@ export const ItemForm = ({ items, onAddItem, onRemoveItem, onUpdateItem }: ItemF
                 {item.discount.type !== "none" && (
                   <input
                     type="number"
-                    placeholder={
-                      item.discount.type === "percentage" ? "Discount %" : "Discount amount"
-                    }
+                    placeholder={item.discount.type === "percentage" ? "%" : "$"}
                     value={item.discount.value}
                     onChange={(event) => {
                       if (parseInt(event.target.value) < 0) return;
 
                       if (item.discount.type === "percentage" && parseInt(event.target.value) > 100)
+                        return;
+
+                      if (
+                        item.discount.type === "amount" &&
+                        parseInt(event.target.value) > item.price
+                      )
                         return;
 
                       onUpdateItem(item.id, {
