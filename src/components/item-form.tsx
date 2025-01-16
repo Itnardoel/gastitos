@@ -15,7 +15,7 @@ export const ItemForm = ({ items, onAddItem, onRemoveItem, onUpdateItem }: ItemF
     onAddItem({
       id: crypto.randomUUID(),
       name: "",
-      price: 0,
+      price: "",
       discount: {
         type: "none",
         value: 0,
@@ -26,8 +26,8 @@ export const ItemForm = ({ items, onAddItem, onRemoveItem, onUpdateItem }: ItemF
   };
 
   return (
-    <>
-      <div className="flex items-center justify-between px-4">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Items</h2>
         <button
           onClick={addNewItem}
@@ -41,13 +41,13 @@ export const ItemForm = ({ items, onAddItem, onRemoveItem, onUpdateItem }: ItemF
         {items.map((item) => (
           <div key={item.id} className="space-y-4 rounded-lg bg-white p-4 shadow-sm">
             <div className="flex gap-4">
-              <div className="flex-1">
+              <div className="flex-auto">
                 <input
                   type="text"
                   placeholder="Item name"
                   value={item.name}
-                  onChange={(e) => {
-                    onUpdateItem(item.id, { name: e.target.value });
+                  onChange={(event) => {
+                    onUpdateItem(item.id, { name: event.target.value });
                   }}
                   className="w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
@@ -57,8 +57,10 @@ export const ItemForm = ({ items, onAddItem, onRemoveItem, onUpdateItem }: ItemF
                   type="number"
                   placeholder="Price"
                   value={item.price}
-                  onChange={(e) => {
-                    onUpdateItem(item.id, { price: parseFloat(e.target.value) || 0 });
+                  onChange={(event) => {
+                    if (parseInt(event.target.value) < 0) return;
+
+                    onUpdateItem(item.id, { price: parseFloat(event.target.value) || "" });
                   }}
                   className="w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
@@ -105,7 +107,7 @@ export const ItemForm = ({ items, onAddItem, onRemoveItem, onUpdateItem }: ItemF
 
                       if (
                         item.discount.type === "amount" &&
-                        parseInt(event.target.value) > item.price
+                        parseInt(event.target.value) > Number(item.price)
                       )
                         return;
 
@@ -124,6 +126,6 @@ export const ItemForm = ({ items, onAddItem, onRemoveItem, onUpdateItem }: ItemF
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 };
