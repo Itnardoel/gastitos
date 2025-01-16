@@ -40,7 +40,7 @@ function App() {
     setPeople(people.map((person) => (person.id === id ? { ...person, ...updates } : person)));
   };
 
-  const handleUpdatePayment = (personId: string, amount: number) => {
+  const handleUpdatePayment = (personId: string, amount: number | "") => {
     setPeople(
       people.map((person) => (person.id === personId ? { ...person, amountPaid: amount } : person)),
     );

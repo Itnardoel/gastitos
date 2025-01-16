@@ -10,7 +10,7 @@ interface PeopleSplitsProps {
   onAddPerson: () => void;
   onRemovePerson: (id: string) => void;
   onUpdatePerson: (id: string, updates: Partial<Person>) => void;
-  onUpdatePayment: (personId: string, amount: number) => void;
+  onUpdatePayment: (personId: string, amount: number | "") => void;
 }
 
 export const PeopleSplit = ({
@@ -70,9 +70,12 @@ export const PeopleSplit = ({
                   onChange={(event) => {
                     if (parseFloat(event.target.value) < 0) return;
 
-                    if (parseFloat(event.target.value) > totalPrice()) return;
+                    if (parseFloat(event.target.value) > totalPrice()) {
+                      onUpdatePayment(person.id, totalPrice());
+                      return;
+                    }
 
-                    onUpdatePayment(person.id, parseFloat(event.target.value) || 0);
+                    onUpdatePayment(person.id, parseFloat(event.target.value) || "");
                   }}
                   className="flex-1 rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
