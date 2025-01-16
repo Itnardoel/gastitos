@@ -1,7 +1,7 @@
 export interface Item {
   id: string;
   name: string;
-  price: number;
+  price: number | "";
   // hasCustomSplit: boolean;
   discount: {
     type: DiscountType;
@@ -10,3 +10,9 @@ export interface Item {
 }
 
 export type DiscountType = "none" | "percentage" | "amount";
+
+export interface Person {
+  id: string;
+  name: string;
+  amountPaid: number | "";
+}
