@@ -68,6 +68,7 @@ function App() {
           <section className="rounded-xl bg-white p-6 shadow-sm">
             <ItemForm
               items={items}
+              people={people}
               onAddItem={handleAddItem}
               onRemoveItem={handleRemoveItem}
               onUpdateItem={handleUpdateItem}
