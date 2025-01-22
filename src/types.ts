@@ -6,6 +6,7 @@ export interface Item {
     type: DiscountType;
     value: number | "";
   };
+  discountedPrice: number | null;
   hasCustomSplit: boolean;
   splits: Split[];
 }
@@ -21,5 +22,5 @@ export interface Person {
 export interface Split {
   personId: string;
   type: "percentage" | "amount";
-  value: number | "";
+  value: number | string;
 }

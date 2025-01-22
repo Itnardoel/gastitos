@@ -20,6 +20,16 @@ export const ItemForm = ({
   onUpdateItem,
 }: ItemFormProps) => {
   const addNewItem = () => {
+    let splits: Split[] = [];
+
+    if (people.length > 0) {
+      splits = people.map((person) => ({
+        personId: person.id,
+        type: "percentage",
+        value: (100 / people.length).toFixed(2),
+      }));
+    }
+
     onAddItem({
       id: crypto.randomUUID(),
       name: "",
@@ -28,7 +38,8 @@ export const ItemForm = ({
         type: "none",
         value: 0,
       },
-      splits: [],
+      discountedPrice: null,
+      splits,
       hasCustomSplit: false,
     });
   };
@@ -37,11 +48,13 @@ export const ItemForm = ({
     const item = items.find((item) => item.id === itemId);
     if (!item) return;
 
-    if (!hasCustomSplit) {
-      onUpdateItem(itemId, { hasCustomSplit, splits: [] });
-    } else {
-      onUpdateItem(itemId, { hasCustomSplit });
-    }
+    // if (!hasCustomSplit) {
+    //   onUpdateItem(itemId, { hasCustomSplit, splits: [] });
+    // } else {
+    //   onUpdateItem(itemId, { hasCustomSplit });
+    // }
+
+    onUpdateItem(itemId, { hasCustomSplit });
   };
 
   const handleUpdateSplit = (
@@ -76,23 +89,26 @@ export const ItemForm = ({
     onUpdateItem(itemId, { splits });
   };
 
-  const calculateSplitAmount = (item: Item, split: Split): number => {
+  const calculateSplitAmount = (itemPrice: number, split: Split): number => {
     if (split.type === "percentage") {
-      return (Number(item.price) * Number(split.value)) / 100;
+      return (itemPrice * Number(split.value)) / 100;
     }
     return Number(split.value);
   };
 
   const getRemainingAmount = (item: Item): number => {
+    const finalPrice = item.discountedPrice ?? Number(item.price);
+
     const totalSplitAmount = item.splits.reduce(
-      (total, split) => total + calculateSplitAmount(item, split),
+      (total, split) => total + calculateSplitAmount(finalPrice, split),
       0,
     );
-    return Number(item.price) - totalSplitAmount;
+    return finalPrice - totalSplitAmount;
   };
 
   return (
     <div className="space-y-4">
+      {/* BOTON PARA AGREGAR UN ITEM NUEVO */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Items</h2>
         <button
@@ -106,6 +122,7 @@ export const ItemForm = ({
       <div>
         {items.map((item) => (
           <div key={item.id} className="space-y-4 rounded-lg bg-white p-4 shadow-sm">
+            {/* CAJA DE CADA ITEM */}
             <div className="flex gap-4">
               <div className="flex-auto">
                 <input
@@ -126,7 +143,19 @@ export const ItemForm = ({
                   onChange={(event) => {
                     if (parseInt(event.target.value) < 0) return;
 
-                    onUpdateItem(item.id, { price: parseFloat(event.target.value) || "" });
+                    const updatedItem = { ...item, price: parseFloat(event.target.value) };
+
+                    if (item.discount.type !== "none") {
+                      onUpdateItem(item.id, {
+                        ...updatedItem,
+                        discountedPrice: getPriceWithDiscount(updatedItem),
+                      });
+                      return;
+                    }
+
+                    onUpdateItem(item.id, {
+                      ...updatedItem,
+                    });
                   }}
                   className="w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
@@ -140,7 +169,7 @@ export const ItemForm = ({
                 <Trash className="size-5" />
               </button>
             </div>
-
+            {/* DESCUENTOS */}
             <div className="mt-2">
               <div className="flex items-center gap-2">
                 <select
@@ -151,6 +180,7 @@ export const ItemForm = ({
                         type: event.target.value as DiscountType,
                         value: "",
                       },
+                      discountedPrice: null,
                     });
                   }}
                   className="rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
@@ -177,11 +207,17 @@ export const ItemForm = ({
                       )
                         return;
 
-                      onUpdateItem(item.id, {
+                      const updatedItem = {
+                        ...item,
                         discount: {
                           type: item.discount.type,
                           value: parseFloat(event.target.value) || 1,
                         },
+                      };
+
+                      onUpdateItem(item.id, {
+                        ...updatedItem,
+                        discountedPrice: getPriceWithDiscount(updatedItem),
                       });
                     }}
                     className="w-32 rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
@@ -269,7 +305,12 @@ export const ItemForm = ({
                             />
                             {split && (
                               <span className="text-sm text-gray-500">
-                                (${calculateSplitAmount(item, split).toFixed(2)})
+                                ($
+                                {calculateSplitAmount(
+                                  item.discountedPrice ?? Number(item.price),
+                                  split,
+                                ).toFixed(2)}
+                                )
                               </span>
                             )}
                           </div>
@@ -285,11 +326,7 @@ export const ItemForm = ({
                 ) : (
                   <p className="text-sm text-gray-500">
                     This item will be split equally between all people ($
-                    {(
-                      getPriceWithDiscount(item.price, item.discount.value, item.discount.type) /
-                      people.length
-                    ).toFixed(2)}{" "}
-                    each)
+                    {(getPriceWithDiscount(item) / people.length).toFixed(2)} each)
                   </p>
                 )}
               </div>

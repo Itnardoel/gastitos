@@ -40,21 +40,21 @@ function App() {
     setPeople(people.map((person) => (person.id === id ? { ...person, ...updates } : person)));
   };
 
-  const handleUpdatePayment = (personId: string, amount: number | "") => {
-    setPeople(
-      people.map((person) => (person.id === personId ? { ...person, amountPaid: amount } : person)),
-    );
-  };
+  // const handleUpdatePayment = (personId: string, amount: number | "") => {
+  //   setPeople(
+  //     people.map((person) => (person.id === personId ? { ...person, amountPaid: amount } : person)),
+  //   );
+  // };
 
   const calculateTotal = () => {
     return items.reduce((total, item) => {
-      let itemTotal = item.price as number;
+      const itemTotal = item.discountedPrice ?? (item.price as number);
 
-      if (item.discount.type === "percentage") {
-        itemTotal *= 1 - Number(item.discount.value) / 100;
-      } else {
-        itemTotal -= Number(item.discount.value);
-      }
+      // if (item.discount.type === "percentage") {
+      //   itemTotal *= 1 - Number(item.discount.value) / 100;
+      // } else {
+      //   itemTotal -= Number(item.discount.value);
+      // }
 
       return total + itemTotal;
     }, 0);
@@ -82,7 +82,7 @@ function App() {
               onAddPerson={handleAddPerson}
               onRemovePerson={handleRemovePerson}
               onUpdatePerson={handleUpdatePerson}
-              onUpdatePayment={handleUpdatePayment}
+              // onUpdatePayment={handleUpdatePayment}
             />
           </section>
           <section className="rounded-xl bg-white p-6 shadow-sm">

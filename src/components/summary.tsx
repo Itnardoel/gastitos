@@ -14,7 +14,7 @@ export const Summary = ({ itemsQuantity, peopleQuantity, totalPrice }: SummaryPr
             Total items: <span className="font-medium">{itemsQuantity}</span>
           </p>
           <p className="text-lg">
-            Total amount: <span className="font-medium">${totalPrice().toFixed(2)}</span>
+            Total amount: <span className="font-medium">${totalPrice()}</span>
           </p>
           <p className="text-lg">
             People involved: <span className="font-medium">{peopleQuantity}</span>

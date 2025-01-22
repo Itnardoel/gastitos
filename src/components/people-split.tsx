@@ -2,6 +2,7 @@ import { type Item, type Person } from "@/types";
 import { UserPlus } from "./icons/user-plus";
 import { Wallet } from "./icons/wallet";
 import { UserX } from "./icons/user-x";
+import { getPersonShare } from "../utils/operations";
 
 interface PeopleSplitsProps {
   people: Person[];
@@ -10,19 +11,19 @@ interface PeopleSplitsProps {
   onAddPerson: () => void;
   onRemovePerson: (id: string) => void;
   onUpdatePerson: (id: string, updates: Partial<Person>) => void;
-  onUpdatePayment: (personId: string, amount: number | "") => void;
+  // onUpdatePayment: (personId: string, amount: number | "") => void;
 }
 
 export const PeopleSplit = ({
-  // items,
+  items,
   people,
   totalPrice,
   onAddPerson,
   onRemovePerson,
-  onUpdatePayment,
+  // onUpdatePayment,
   onUpdatePerson,
 }: PeopleSplitsProps) => {
-  const equalShare = totalPrice() / people.length;
+  // const equalShare = totalPrice() / people.length;
 
   return (
     <>
@@ -70,26 +71,34 @@ export const PeopleSplit = ({
                   onChange={(event) => {
                     if (parseFloat(event.target.value) < 0) return;
 
+                    // if (parseFloat(event.target.value) > totalPrice()) {
+                    //   onUpdatePayment(person.id, totalPrice());
+                    //   return;
+                    // }
+
                     if (parseFloat(event.target.value) > totalPrice()) {
-                      onUpdatePayment(person.id, totalPrice());
+                      onUpdatePerson(person.id, { amountPaid: totalPrice() });
                       return;
                     }
 
-                    onUpdatePayment(person.id, parseFloat(event.target.value) || "");
+                    // onUpdatePayment(person.id, parseFloat(event.target.value) || "");
+
+                    onUpdatePerson(person.id, { amountPaid: parseFloat(event.target.value) || "" });
                   }}
                   className="flex-1 rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="text-sm text-gray-600">
-                <p>Equal share: ${equalShare.toFixed(2)}</p>
-                <p>Amount paid: ${Number(person.amountPaid).toFixed(2)}</p>
+                {/* <p>Share: ${equalShare.toFixed(2)}</p> */}
+                <p>Share: ${getPersonShare(items, person.id, people.length).toFixed(2)}</p>
+                <p>Amount paid: ${person.amountPaid || 0}</p>
                 <p
-                  className={`${Number(person.amountPaid) >= equalShare ? "text-green-600" : "text-red-600"} ${totalPrice() === 0 ? "invisible" : ""}`}
+                  className={`${Number(person.amountPaid) >= getPersonShare(items, person.id, people.length) ? "text-green-600" : "text-red-600"} ${totalPrice() === 0 ? "invisible" : ""}`}
                 >
-                  {Number(person.amountPaid) >= equalShare
+                  {Number(person.amountPaid) >= getPersonShare(items, person.id, people.length)
                     ? "Fully paid"
-                    : `Remaining: $${(equalShare - Number(person.amountPaid)).toFixed(2)}`}
+                    : `Remaining: $${(getPersonShare(items, person.id, people.length) - (Number(person.amountPaid) || 0)).toFixed(2)}`}
                 </p>
               </div>
             </div>
